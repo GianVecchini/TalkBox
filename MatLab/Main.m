@@ -44,7 +44,7 @@ wLength = round(Fs*wTimeLenght);
 
 % A smaller hop gives an higher overlap. This results in having a smoother
 % result but a havier computation.
-hopSize = floor(wLength/10);
+hopSize = floor(wLength/8);
 
 % Type of window
 w = hann(wLength);  
@@ -68,8 +68,8 @@ e = zeros(1, outLength);
 %   - High P_x means that the residual does not have any spectral content,
 %     is less correlated and more similar to a white noise
 %   - Low P_x gives a more rich excitation
-P_s = 20;
-P_x = 70;
+P_s = 42;
+P_x = 42;
 
 % Compute for each frame
 for i = 1:nFrames
@@ -153,7 +153,7 @@ end
 
 y = y ./ max(abs(y) + eps); % Normalize the output
 sound(y, Fs)
-%audiowrite('effectOutput.wav', y, Fs);
+audiowrite('effectOutput.wav', y, Fs);
 
 % Plot the spectrograms, for curiosity
 figure;
