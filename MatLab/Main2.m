@@ -11,7 +11,7 @@ clear
 close all
 
 %% IMPORT / CREATE SIGNALS
-nCase = 2; % 1, 2, 3
+nCase = 1; % 1, 2, 3
 
 switch nCase
     case 1
@@ -79,10 +79,10 @@ end
 %     is less correlated and more similar to a white noise
 %   - Low P_x gives a more rich excitation 
 
-% the rule shoud be 
+% the rule for speech should be 
 % Fs/1000 < p < Fs/1000+4 --> 44.1 < p < 48.1
-P_s = 30; 
-P_x = 46;
+P_s = 46; 
+P_x = 70;
 Nfft = 1024;
 
 % doing it as a function so that we can try different parameters and all
@@ -93,23 +93,37 @@ y = y ./ max(abs(y) + eps); % Normalize the output
 sound(y, Fs)
 audiowrite('effectOutput.wav', y, Fs);
 
-% Plot the spectrograms, for curiosity
-figure;
-subplot(4,1,1)
-spectrogram(s, hann(512), 256, 1024, Fs, 'yaxis')
-title('Speech Spectrogram')
-
-subplot(4,1,2)
-spectrogram(x, hann(512), 256, 1024, Fs, 'yaxis')
-title('Music Spectrogram')
-
-subplot(4,1,3)
-spectrogram(y, hann(512), 256, 1024, Fs, 'yaxis')
-title('Output Spectrogram')
-
-subplot(4,1,4)
-spectrogram(e, hann(512), 256, 1024, Fs, 'yaxis')
-title('Excitation Spectrogram')
+spectrograms(s,x,y,e,Fs);
 
 
-%%
+% Experiments for the case 1! it changes a lot basing on soectrum 
+%% other P_x example with some frequencies that are not shaped 
+P_x = 50;
+[y, e] = LPCandOLA(s, x, w, Fs, wLength, hopSize, P_s, P_x, Nfft);
+
+y = y ./ max(abs(y) + eps); % Normalize the output
+sound(y, Fs)
+audiowrite('dinerLowp.wav', y, Fs);
+
+spectrograms(s,x,y,e,Fs);
+
+%% other P_x example too white --> we cannot hear the guitar anymore
+P_x = 100;
+[y, e] = LPCandOLA(s, x, w, Fs, wLength, hopSize, P_s, P_x, Nfft);
+
+y = y ./ max(abs(y) + eps); % Normalize the output
+sound(y, Fs)
+audiowrite('effectOutput.wav', y, Fs);
+
+spectrograms(s,x,y,e,Fs);
+
+%% experiment: i divide the bandwidth in two regions with different lpc orders
+P_x1 = 20;
+P_x2 = 90;
+Fcut = 4000;
+[y,e] = LPCsplitted(s, x, w, Fs, wLength, hopSize, P_s, P_x1, P_x2, Fcut, Nfft);
+y = y ./ max(abs(y) + eps); % Normalize the output
+sound(y, Fs)
+audiowrite('lpcsplitOutput.wav', y, Fs);
+
+spectrograms(s,x,y,e,Fs);
